@@ -5,15 +5,18 @@ const Director = require('../model/director');
 const fs = require('fs');
 const path = require('path'); //path is an builtin node.js library
 const uploadPath = path.join('public',Movie.posterImageBasePath); // join path of  public folder with posterImageBasePath
-const multer = require('multer');//multer is like body parser of files
-const imageMimeTypes = ['image/jpeg','image/png','image/gif']//these are some default mime types used for images
-const upload = multer({
-    dest: uploadPath,
-    //destination were the file should be stored
-   fileFilter : (req,file,callback)=> {
-            callback(null,imageMimeTypes.includes(file.mimetype))
-   }
-})
+//const multer = require('multer');//multer is like body parser of files
+ const imageMimeTypes = ['image/jpeg','image/png','image/gif']//these are some default mime types used for images
+// const upload = multer({
+//     dest: uploadPath,
+//     //destination were the file should be stored
+//    fileFilter : (req,file,callback)=> {
+//             callback(null,imageMimeTypes.includes(file.mimetype))
+//    }
+// })
+
+//****important *******
+// "We no longer need the multer coz filepond will convert the image into json string"
 
 //all Movie route
 router.get("/",async (req,res)=>{
@@ -44,20 +47,22 @@ router.get("/new",async (req,res)=>{
 })
 
 //Add New Movie 
-router.post("/",upload.single("poster") , async (req,res)=>{
+router.post("/"  , async (req,res)=>{
     // upload.single("poster") this simply means multer we uploading a single file of name poster =>
     // "poster" name in input form
 
-  const fileName = req.file != null ? req.file.filename : null ;
+  //const fileName = req.file != null ? req.file.filename : null ;
+
   const movie = new Movie({
     name: req.body.name,
     director:req.body.director,
     releaseDate: new Date(req.body.releaseDate),
     duration:req.body.duration,
-    posterImageName:fileName,
+   // posterImageName:fileName,
     description:req.body.description
   })
-  console.log(movie);
+  savePoster(movie,req.body.poster);
+  //console.log(movie);
  // console.log(movie)
   try{
         const newMovie = await movie.save();
@@ -67,20 +72,20 @@ router.post("/",upload.single("poster") , async (req,res)=>{
   }catch(err){
       console.log(err)
      // console.log(movie.posterImageName);
-      if(movie.posterImageName != null){
-        removeMoviePoster(movie.posterImageName);
-      }
+      // if(movie.posterImageName != null){
+      //   removeMoviePoster(movie.posterImageName);
+      // }
       renderNewPage(res,movie,true)
    // fs.unlink();
   }
 })
 
-function removeMoviePoster(posterName){
+// function removeMoviePoster(posterName){
 
-  fs.unlink(path.join(uploadPath,posterName ), err => {
-    if(err) console.error(err)
-  })
-}
+//   fs.unlink(path.join(uploadPath,posterName ), err => {
+//     if(err) console.error(err)
+//   })
+// } " we no longer need this we storing image as string not as file "
 
 async function renderNewPage(res,movie,hasError = false){
   try{
@@ -97,4 +102,12 @@ async function renderNewPage(res,movie,hasError = false){
 
 }
 
+function savePoster(movie, posterEncoded){
+ if (posterEncoded == null) return
+ const poster = JSON.parse(posterEncoded); //parsing json string to json obj
+ if (poster != null && imageMimeTypes.includes(poster.type)){
+    movie.posterImage = new Buffer.from(poster.data,'base64');
+    movie.posterImageType = poster.type;
+ }
+}
 module.exports = router;

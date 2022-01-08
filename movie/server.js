@@ -17,15 +17,17 @@ app.set("view engine","ejs");
 app.set("views", __dirname+"/views");
 app.set("layout",__dirname+"/views/layouts/layout");
 
-app.use(express.urlencoded({limit:'10mb',extended:false}));
+app.use(express.urlencoded({limit:'10mb',extended:true}));
+app.use(express.json());
 app.use(expressLayouts);
 app.use(express.static('public'));
 
 const indexRoute = require(__dirname+"/routes/index");
 const directorRoute = require(__dirname+"/routes/directors");
+const movieRoute = require(__dirname+"/routes/movies");
 app.use("/",indexRoute);
-app.use("/directors",directorRoute);//prepend like "director/"
-//app.use("/directors/new",directorRoute);
+app.use("/directors",directorRoute);//prepend like "director/" => "/directors/new"
+app.use("/movies",movieRoute);//any request comes to " /books/so on " url will use this router
 
 app.listen(process.env.PORT || 3000,()=>{
     console.log("Server is up and running");

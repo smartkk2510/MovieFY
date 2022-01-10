@@ -61,7 +61,7 @@ router.get('/:id',async (req,res)=>{
 })
 
 router.get('/:id/edit',async (req,res)=>{
-    
+    //nothing
     try{
         const director = await Directors.findById(req.params.id)
         res.render("directors/edit",{ director : director });

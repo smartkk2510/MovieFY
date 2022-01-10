@@ -4,7 +4,11 @@ if(process.env.NODE_ENV !== 'production'){
 }
 
 const express = require("express");
+const methodOverride = require('method-override');
+
 const app = express();
+app.use(methodOverride('_method'));//it's important to use it before any other middleware
+
 const expressLayouts = require("express-ejs-layouts");
 
 const mongoose = require('mongoose');
@@ -17,7 +21,7 @@ app.set("view engine","ejs");
 app.set("views", __dirname+"/views");
 app.set("layout",__dirname+"/views/layouts/layout");
 
-app.use(express.urlencoded({limit:'10mb',extended:true}));
+app.use(express.urlencoded({limit:'10mb',extended:false}));
 app.use(express.json());
 app.use(expressLayouts);
 app.use(express.static('public'));
@@ -28,6 +32,10 @@ const movieRoute = require(__dirname+"/routes/movies");
 app.use("/",indexRoute);
 app.use("/directors",directorRoute);//prepend like "director/" => "/directors/new"
 app.use("/movies",movieRoute);//any request comes to " /books/so on " url will use this router
+
+
+//method override allow us to send put and delete req from browser with special 
+//parameter.here named that param as "_method"
 
 app.listen(process.env.PORT || 3000,()=>{
     console.log("Server is up and running");

@@ -57,7 +57,7 @@ movieSchema.virtual('posterImagePath').get(function(){
          if(this.posterImage != null && this.posterImageType != null){
              return `data:${this.posterImageType};charset=utf-8;base64,
              ${this.posterImage.toString('base64')}`
-             //'/' <= gives path of public folder 
+            
          }
     }) 
 

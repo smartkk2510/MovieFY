@@ -1,4 +1,4 @@
-console.log('a')
+
  FilePond.registerPlugin(
     FilePondPluginImageResize,
     FilePondPluginImagePreview,
